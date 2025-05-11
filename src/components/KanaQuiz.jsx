@@ -290,6 +290,14 @@ const KanaQuiz = () => {
         </Grid>
       </Box>
     );
+      // ← 新增這段檢查
+  if (!showTypeSelector && options.length === 0) {
+    return (
+      <Container maxWidth="sm" sx={{ textAlign: 'center', mt: 8 }}>
+        <Typography variant="h6">題目載入中，請稍候…</Typography>
+      </Container>
+    );
+  }
 
     return (
       <Box sx={{ mt:2 }}>

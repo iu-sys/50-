@@ -154,7 +154,7 @@ const KanaQuiz = () => {
         setWrongCount(w => w + 1);
         setShowAnswer(true);
         setLastWrong(true);
-        setTimeout(() => nextQuestion(score), 1200);
+        setTimeout(() => nextQuestion(), 1200);
       }
     } else if (level === 1) {
       correct = currentKana.kana;
@@ -169,7 +169,7 @@ const KanaQuiz = () => {
         setWrongCount(w => w + 1);
         setShowAnswer(true);
         setLastWrong(true);
-        setTimeout(() => nextQuestion(score), 1200);
+        setTimeout(() => nextQuestion(), 1200);
       }
     }
   };
@@ -191,7 +191,7 @@ const KanaQuiz = () => {
         setWrongCount(w => w + 1);
         setShowAnswer(true);
         setLastWrong(true);
-        setTimeout(() => nextQuestion(score), 1200);
+        setTimeout(() => nextQuestion(), 1200);
       }
     } else if (level === 3) {
       const correctAnswer = options.map(k => k.romaji).join('');
@@ -207,21 +207,19 @@ const KanaQuiz = () => {
         setWrongCount(w => w + 1);
         setShowAnswer(true);
         setLastWrong(true);
-        setTimeout(() => nextQuestion(score), 1200);
+        setTimeout(() => nextQuestion(), 1200);
       }
     }
   };
 
-  const nextQuestion = (nextScore = score) => {
+  const nextQuestion = () => {
     setShowAnswer(false);
     setUserAnswer('');
     setLastWrong(false);
 
-    if (nextScore >= LEVELS[level].need) {
+    if (score >= LEVELS[level].need) {
       if (level < 3) {
         setLevel(level + 1);
-        setScore(0);
-        setTotal(0);
       } else {
         setShowCompletionDialog(true);
       }
@@ -326,6 +324,7 @@ const KanaQuiz = () => {
 
   useEffect(() => {
     if (!showTypeSelector) {
+      setScore(0);
       generateNewQuestion();
     }
     // eslint-disable-next-line

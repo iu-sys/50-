@@ -145,26 +145,32 @@ const KanaQuiz = () => {
     if (level === 0) {
       correct = currentKana.romaji;
       if (option.romaji === correct) {
-        setScore(s => s + 1);
-        nextQuestion();
+        setScore(s => {
+          const next = s + 1;
+          nextQuestion(next);
+          return next;
+        });
       } else {
         setScore(s => Math.max(0, s - 1));
         setWrongCount(w => w + 1);
         setShowAnswer(true);
         setLastWrong(true);
-        setTimeout(nextQuestion, 1200);
+        setTimeout(() => nextQuestion(score), 1200);
       }
     } else if (level === 1) {
       correct = currentKana.kana;
       if (option.kana === correct) {
-        setScore(s => s + 1);
-        nextQuestion();
+        setScore(s => {
+          const next = s + 1;
+          nextQuestion(next);
+          return next;
+        });
       } else {
         setScore(s => Math.max(0, s - 1));
         setWrongCount(w => w + 1);
         setShowAnswer(true);
         setLastWrong(true);
-        setTimeout(nextQuestion, 1200);
+        setTimeout(() => nextQuestion(score), 1200);
       }
     }
   };
@@ -176,38 +182,43 @@ const KanaQuiz = () => {
     if (level === 2) {
       const isCorrect = userAnswer.toLowerCase() === currentKana.romaji;
       if (isCorrect) {
-        setScore(s => s + 1);
-        nextQuestion();
+        setScore(s => {
+          const next = s + 1;
+          nextQuestion(next);
+          return next;
+        });
       } else {
         setScore(s => Math.max(0, s - 1));
         setWrongCount(w => w + 1);
         setShowAnswer(true);
         setLastWrong(true);
-        setTimeout(nextQuestion, 1200);
+        setTimeout(() => nextQuestion(score), 1200);
       }
     } else if (level === 3) {
-      // 不需要空格，直接連續輸入三個羅馬拼音
       const correctAnswer = options.map(k => k.romaji).join('');
       const isCorrect = userAnswer.replace(/\s+/g, '').toLowerCase() === correctAnswer;
       if (isCorrect) {
-        setScore(s => s + 1);
-        nextQuestion();
+        setScore(s => {
+          const next = s + 1;
+          nextQuestion(next);
+          return next;
+        });
       } else {
         setScore(s => Math.max(0, s - 1));
         setWrongCount(w => w + 1);
         setShowAnswer(true);
         setLastWrong(true);
-        setTimeout(nextQuestion, 1200);
+        setTimeout(() => nextQuestion(score), 1200);
       }
     }
   };
 
-  const nextQuestion = () => {
+  const nextQuestion = (nextScore = score) => {
     setShowAnswer(false);
     setUserAnswer('');
     setLastWrong(false);
 
-    if (score >= LEVELS[level].need) {
+    if (nextScore >= LEVELS[level].need) {
       if (level < 3) {
         setLevel(level + 1);
         setScore(0);

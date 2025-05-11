@@ -154,7 +154,7 @@ const KanaQuiz = () => {
         setWrongCount(w => w + 1);
         setShowAnswer(true);
         setLastWrong(true);
-        setTimeout(() => nextQuestion(), 1200);
+        setTimeout(() => nextQuestion(undefined, true), 1200);
       }
     } else if (level === 1) {
       correct = currentKana.kana;
@@ -169,7 +169,7 @@ const KanaQuiz = () => {
         setWrongCount(w => w + 1);
         setShowAnswer(true);
         setLastWrong(true);
-        setTimeout(() => nextQuestion(), 1200);
+        setTimeout(() => nextQuestion(undefined, true), 1200);
       }
     }
   };
@@ -191,7 +191,7 @@ const KanaQuiz = () => {
         setWrongCount(w => w + 1);
         setShowAnswer(true);
         setLastWrong(true);
-        setTimeout(() => nextQuestion(), 1200);
+        setTimeout(() => nextQuestion(undefined, true), 1200);
       }
     } else if (level === 3) {
       const correctAnswer = options.map(k => k.romaji).join('');
@@ -207,17 +207,17 @@ const KanaQuiz = () => {
         setWrongCount(w => w + 1);
         setShowAnswer(true);
         setLastWrong(true);
-        setTimeout(() => nextQuestion(), 1200);
+        setTimeout(() => nextQuestion(undefined, true), 1200);
       }
     }
   };
 
-  const nextQuestion = () => {
+  const nextQuestion = (nextScore = score, forceNext = false) => {
     setShowAnswer(false);
     setUserAnswer('');
     setLastWrong(false);
 
-    if (score >= LEVELS[level].need) {
+    if (!forceNext && score >= LEVELS[level].need) {
       if (level < 3) {
         setLevel(level + 1);
       } else {

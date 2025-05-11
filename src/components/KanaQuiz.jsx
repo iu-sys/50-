@@ -135,7 +135,6 @@ const KanaQuiz = () => {
     setShowCompletionDialog(false);
     setShowTypeSelector(true);
     setSelectedGroups([]);
-    setWrongCount(0);
   };
 
   const handleOptionClick = (option) => {
@@ -223,7 +222,6 @@ const KanaQuiz = () => {
         setLevel(level + 1);
         setScore(0);
         setTotal(0);
-        setWrongCount(0);
         generateNewQuestion();
       } else {
         setShowCompletionDialog(true);
@@ -525,7 +523,7 @@ const KanaQuiz = () => {
               </Box>
             )}
 
-            {showAnswer && (
+            {showAnswer && lastWrong && (
               <Typography
                 variant="h6"
                 sx={{

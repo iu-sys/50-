@@ -517,6 +517,5 @@ const nextQuestion = (nextScore = score, forceNext = false) => {
       </Paper>
     </Container>
   );
-};
 
-export default KanaQuiz;
+  

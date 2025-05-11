@@ -393,7 +393,8 @@ const KanaQuiz = () => {
                             sx={{
                               fontSize: '1.2rem',
                               height: '60px',
-                              bgcolor: showAnswer && option.romaji.toLowerCase() === currentKana.romaji.toLowerCase() ? 'success.light' : 'inherit'
+                              bgcolor: showAnswer && option.romaji.toLowerCase() === currentKana.romaji.toLowerCase() ? 'success.light' : 'inherit',
+                              textTransform: 'none'
                             }}
                           >
                             {option.romaji.toLowerCase()}

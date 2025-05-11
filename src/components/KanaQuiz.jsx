@@ -393,10 +393,10 @@ const KanaQuiz = () => {
                             sx={{
                               fontSize: '1.2rem',
                               height: '60px',
-                              bgcolor: showAnswer && option.romaji === currentKana.romaji ? 'success.light' : 'inherit'
+                              bgcolor: showAnswer && option.romaji.toLowerCase() === currentKana.romaji.toLowerCase() ? 'success.light' : 'inherit'
                             }}
                           >
-                            {option.romaji}
+                            {option.romaji.toLowerCase()}
                           </Button>
                         </Grid>
                       ))}
@@ -408,7 +408,7 @@ const KanaQuiz = () => {
                 {level === 1 && (
                   <>
                     <Typography variant="h1" component="div" sx={{ fontSize: '3rem', mb: 2 }}>
-                      {currentKana.romaji}
+                      {currentKana.romaji.toLowerCase()}
                     </Typography>
                     <Grid container spacing={2} sx={{ mt: 2 }}>
                       {options.map((option, index) => (
@@ -523,9 +523,9 @@ const KanaQuiz = () => {
                 }}
               >
                 錯誤！正確答案是 {
-                  level === 0 || level === 2 ? currentKana.romaji :
+                  level === 0 || level === 2 ? currentKana.romaji.toLowerCase() :
                   level === 1 ? currentKana.kana :
-                  options.map(k => k.romaji).join(' ')
+                  options.map(k => k.romaji.toLowerCase()).join(' ')
                 }
               </Typography>
             )}

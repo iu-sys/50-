@@ -222,7 +222,6 @@ const KanaQuiz = () => {
         setLevel(level + 1);
         setScore(0);
         setTotal(0);
-        generateNewQuestion();
       } else {
         setShowCompletionDialog(true);
       }

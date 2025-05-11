@@ -13,8 +13,7 @@ import {
   DialogContent,
   DialogActions,
   Checkbox,
-  Grid,
-  Alert
+  Grid
 } from '@mui/material';
 import { getRandomKana, kanaGroups, getGroupInfo } from '../data/kana';
 
@@ -54,7 +53,7 @@ const KanaQuiz = () => {
     });
   };
 
-  // 出題函式：四關通用
+  // 出題函式
   const generateNewQuestion = () => {
     setUserAnswer('');
     setShowAnswer(false);
@@ -160,7 +159,6 @@ const KanaQuiz = () => {
     if (showAnswer && !lastWrong) return;
 
     if (level === 0) {
-      // 第一關：opt 為字串
       if (opt === currentKana.romaji) {
         setScore(s => s + 1);
         nextQuestion();
@@ -172,7 +170,6 @@ const KanaQuiz = () => {
         setTimeout(() => nextQuestion(true), 1200);
       }
     } else if (level === 1) {
-      // 第二關：opt 為物件
       if (opt.kana === currentKana.kana) {
         setScore(s => s + 1);
         nextQuestion();
@@ -234,46 +231,55 @@ const KanaQuiz = () => {
     }
   };
 
-  // 音組選擇
+  // 修正後的 renderGroupSelector
   const renderGroupSelector = () => {
     const types = ['hiragana', 'katakana'];
-    const labels = { hiragana: '平假名', katakana: '片假名' };
-    const basic = ['あ行','か行','さ行','た行','な行','は行','ま行','や行','ら行','わ行'];
-    const daku = ['が行','ざ行','だ行','ば行'];
-    const handaku = ['ぱ行'];
-    const kBasic = ['ア行','カ行','サ行','タ行','ナ行','ハ行','マ行','ヤ行','ラ行','ワ行'];
-    const kDaku = ['ガ行','ザ行','ダ行','バ行'];
-    const kHanda = ['パ行'];
+    const typeLabels = {
+      hiragana: '平假名 (ひらがな)',
+      katakana: '片假名 (カタカナ)'
+    };
 
-    const section = (type, rows, title) => (
+    const hiraganaRows = {
+      basic: ['あ行','か行','さ行','た行','な行','は行','ま行','や行','ら行','わ行'],
+      dakuon: ['が行','ざ行','だ行','ば行'],
+      handakuon: ['ぱ行']
+    };
+    const katakanaRows = {
+      basic: ['ア行','カ行','サ行','タ行','ナ行','ハ行','マ行','ヤ行','ラ行','ワ行'],
+      dakuon: ['ガ行','ザ行','ダ行','バ行'],
+      handakuon: ['パ行']
+    };
+
+    const renderSection = (type, rows, title) => (
       <Box sx={{ mb:4 }}>
         <Typography variant="h6" sx={{ mb:2, color:'primary.main', borderBottom:'2px solid', pb:1 }}>
           {title}
         </Typography>
         <Grid container spacing={2}>
-          {rows.map(r => {
-            const sel = selectedGroups.some(g => g.type===type && g.name===r);
+          {rows.map(row => {
+            const isSelected = selectedGroups.some(g => g.type === type && g.name === row);
             return (
-              <Grid item xs={6} sm={4} md={3} key={r}>
+              <Grid item xs={6} sm={4} md={3} key={row}>
                 <Paper
-                  elevation={sel?3:1}
+                  elevation={isSelected ? 3 : 1}
                   sx={{
-                    p:2, cursor:'pointer',
-                    bgcolor: sel?'primary.light':'background.paper',
-                    '&:hover':{ bgcolor: sel?'primary.light':'action.hover'}
+                    p:2,
+                    cursor:'pointer',
+                    bgcolor: isSelected ? 'primary.light' : 'background.paper',
+                    '&:hover': { bgcolor: isSelected ? 'primary.light' : 'action.hover' }
                   }}
-                  onClick={()=>handleGroupToggle(type,r)}
+                  onClick={() => handleGroupToggle(type, row)}
                 >
                   <Box sx={{ display:'flex', alignItems:'center' }}>
                     <Checkbox
-                      checked={sel}
-                      onChange={()=>handleGroupToggle(type,r)}
-                      onClick={e=>e.stopPropagation()}
+                      checked={isSelected}
+                      onChange={() => handleGroupToggle(type, row)}
+                      onClick={e => e.stopPropagation()}
                     />
                     <Box>
-                      <Typography variant="subtitle1">{r}</Typography>
+                      <Typography variant="subtitle1">{row}</Typography>
                       <Typography variant="body2" color="text.secondary">
-                        {kanaGroups[type][r].map(k=>k.kana).join(' ')}
+                        {kanaGroups[type][row].map(k => k.kana).join(' ')}
                       </Typography>
                     </Box>
                   </Box>
@@ -287,30 +293,30 @@ const KanaQuiz = () => {
 
     return (
       <Box sx={{ mt:2 }}>
-        {types.map(t=>(
-          <Box key={t} sx={{ mb:6 }}>
-            <Typography variant="h5" sx={{ mb:3, fontWeight:'bold' }}>
-              {labels[t]} (カナ)
-            </Typography>
-            {section(t, basic, '基本音')}
-            {section(t, daku, '濁音')}
-            {section(t, handaku, '半濁音')}
-            {section(t, kBasic, '基本音')}
-            {section(t, kDaku, '濁音')}
-            {section(t, kHanda, '半濁音')}
-          </Box>
-        ))}
+        {types.map(type => {
+          const rows = type === 'hiragana' ? hiraganaRows : katakanaRows;
+          return (
+            <Box key={type} sx={{ mb:6 }}>
+              <Typography variant="h5" sx={{ mb:3, fontWeight:'bold', color:'primary.dark' }}>
+                {typeLabels[type]}
+              </Typography>
+              {renderSection(type, rows.basic, '基本音')}
+              {renderSection(type, rows.dakuon, '濁音')}
+              {renderSection(type, rows.handakuon, '半濁音')}
+            </Box>
+          );
+        })}
       </Box>
     );
   };
 
-  // 初次及關卡改變時出題
+  // 自動出題
   useEffect(() => {
     if (!showTypeSelector) generateNewQuestion();
     // eslint-disable-next-line
   }, [level]);
 
-  // 回傳 UI
+  // 最終 UI
   return (
     <Container maxWidth="lg">
       <Paper elevation={3} sx={{ p:4, mt:4 }}>
@@ -354,20 +360,19 @@ const KanaQuiz = () => {
           </Box>
         ) : (
           <>
-            {/* 第一關 */}
-            {level===0 && (
+            {level === 0 && (
               <Box sx={{ textAlign:'center', mb:4 }}>
                 <Typography variant="h1" sx={{ fontSize:'4rem', mb:2 }}>
                   {currentKana.kana}
                 </Typography>
                 <Grid container spacing={2}>
-                  {options.map(opt=>(
+                  {options.map(opt => (
                     <Grid item xs={6} key={opt}>
                       <Button
                         fullWidth
                         variant="outlined"
                         size="large"
-                        onClick={()=>handleOptionClick(opt)}
+                        onClick={() => handleOptionClick(opt)}
                         disabled={showAnswer && !lastWrong}
                         sx={{ fontSize:'1.2rem', height:60, textTransform:'none' }}
                       >
@@ -378,20 +383,20 @@ const KanaQuiz = () => {
                 </Grid>
               </Box>
             )}
-            {/* 第二關 */}
-            {level===1 && (
+
+            {level === 1 && (
               <Box sx={{ textAlign:'center', mb:4 }}>
                 <Typography variant="h1" sx={{ fontSize:'3rem', mb:2 }}>
                   {currentKana.romaji.toLowerCase()}
                 </Typography>
                 <Grid container spacing={2}>
-                  {options.map((opt,i)=>(
+                  {options.map((opt,i) => (
                     <Grid item xs={6} key={i}>
                       <Button
                         fullWidth
                         variant="outlined"
                         size="large"
-                        onClick={()=>handleOptionClick(opt)}
+                        onClick={() => handleOptionClick(opt)}
                         disabled={showAnswer && !lastWrong}
                         sx={{
                           fontSize:'2rem',
@@ -407,8 +412,8 @@ const KanaQuiz = () => {
                 </Grid>
               </Box>
             )}
-            {/* 第三關 */}
-            {level===2 && (
+
+            {level === 2 && (
               <Box sx={{ textAlign:'center', mb:4 }}>
                 <Typography variant="h1" sx={{ fontSize:'4rem', mb:2 }}>
                   {currentKana.kana}
@@ -418,7 +423,7 @@ const KanaQuiz = () => {
                     fullWidth
                     label="請輸入羅馬拼音"
                     value={userAnswer}
-                    onChange={e=>setUserAnswer(e.target.value)}
+                    onChange={e => setUserAnswer(e.target.value)}
                     disabled={showAnswer && lastWrong}
                     sx={{ mb:2 }}
                   />
@@ -434,18 +439,22 @@ const KanaQuiz = () => {
                 </form>
               </Box>
             )}
-            {/* 第四關 */}
-            {level===3 && (
+
+            {level === 3 && (
               <Box sx={{ textAlign:'center', mb:4 }}>
                 <Box sx={{ display:'flex', justifyContent:'center', gap:2, mb:2 }}>
-                  {options.map((k,i)=>(<Typography key={i} variant="h1" sx={{ fontSize:'4rem' }}>{k.kana}</Typography>))}
+                  {options.map((k,i) => (
+                    <Typography key={i} variant="h1" sx={{ fontSize:'4rem' }}>
+                      {k.kana}
+                    </Typography>
+                  ))}
                 </Box>
                 <form onSubmit={handleSubmit}>
                   <TextField
                     fullWidth
                     label="連續輸入三個羅馬拼音"
                     value={userAnswer}
-                    onChange={e=>setUserAnswer(e.target.value)}
+                    onChange={e => setUserAnswer(e.target.value)}
                     disabled={showAnswer && lastWrong}
                     sx={{ mb:2 }}
                   />
@@ -461,24 +470,24 @@ const KanaQuiz = () => {
                 </form>
               </Box>
             )}
-            {/* 錯誤提示 */}
+
             {showAnswer && lastWrong && (
               <Typography variant="h6" color="error" sx={{ textAlign:'center', mt:2 }}>
                 錯誤！正確答案是{' '}
-                {level===0
+                {level === 0
                   ? currentKana.romaji
-                  : level===1
+                  : level === 1
                     ? currentKana.kana
-                    : level===3
-                      ? options.map(k=>k.romaji).join('')
+                    : level === 3
+                      ? options.map(k => k.romaji).join('')
                       : currentKana.romaji
                 }
               </Typography>
             )}
           </>
         )}
-        {/* 完成對話框 */}
-        <Dialog open={showCompletionDialog} onClose={()=>setShowCompletionDialog(false)}>
+
+        <Dialog open={showCompletionDialog} onClose={() => setShowCompletionDialog(false)}>
           <DialogTitle>測驗完成！</DialogTitle>
           <DialogContent>
             <Typography>恭喜你完成所有關卡！</Typography>

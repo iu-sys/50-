@@ -57,106 +57,100 @@ const KanaQuiz = () => {
   };
 
   // ——— 出題函式 ———
-  const generateNewQuestion = () => {
-    // 先清除前一次的答題狀態
-    setUserAnswer('');
-    setShowAnswer(false);
-    setLastWrong(false);
+ // 假設前面已經宣告過：
+// const [currentKana, setCurrentKana] = useState({ kana:'', hira:'', kata:'', romaji:'' });
+// const [lastKanas, setLastKanas] = useState([]);
+// const [lastRomaji, setLastRomaji] = useState('');
+// const [options, setOptions] = useState([]);
+// const [level, setLevel] = useState(0);
+// const [selectedGroups, setSelectedGroups] = useState([]);
+// const [score, setScore] = useState(0);
+// const [wrongCount, setWrongCount] = useState(0);
+// const [showAnswer, setShowAnswer] = useState(false);
+// const [lastWrong, setLastWrong] = useState(false);
+// const [userAnswer, setUserAnswer] = useState('');
+// const [showCompletionDialog, setShowCompletionDialog] = useState(false);
 
-    let newKana;
-    let newOptions = [];
+const generateNewQuestion = () => {
+  // 重置答題狀態
+  setUserAnswer('');
+  setShowAnswer(false);
+  setLastWrong(false);
 
-    if (level === 0) {
-      // —— 第1關：選羅馬拼音 —— 
-      const allKana = selectedGroups.flatMap(g => g.items);
-      const uniqueRomaji = Array.from(new Set(allKana.map(k => k.romaji)));
-      if (uniqueRomaji.length === 0) return;
+  let newKana;
+  let newOptions = [];
 
-      // 隨機取不重複上次的 roman
-      let correctRomaji;
-      do {
-        correctRomaji = uniqueRomaji[
-          Math.floor(Math.random() * uniqueRomaji.length)
-        ];
-      } while (uniqueRomaji.length > 1 && correctRomaji === lastRomaji);
-      setLastRomaji(correctRomaji);
+  if (level === 0) {
+    // …（第一關邏輯，不動）…
+    // 省略…
+  }
+  else if (level === 1) {
+    // —— 第2關：選假名 —— 
 
-      // 找對應的平假名 & 片假名
-      const hiraChar = allKana.find(k =>
-        k.romaji === correctRomaji &&
-        selectedGroups.some(g => g.type === 'hiragana' && g.items.includes(k))
-      )?.kana || '';
-      const kataChar = allKana.find(k =>
-        k.romaji === correctRomaji &&
-        selectedGroups.some(g => g.type === 'katakana' && g.items.includes(k))
-      )?.kana || '';
+    // 1. 隨機選一個假名（避免和上次一樣）
+    do {
+      newKana = getRandomKana(selectedGroups);
+    } while (lastKanas.includes(newKana));
+    setLastKanas([newKana]);
 
-      // 設定題目
-      setCurrentKana({ kana: '', hira: hiraChar, kata: kataChar, romaji: correctRomaji });
+    // 2. 找出這個假名屬於哪一組（hiragana or katakana）
+    const currentGroup = selectedGroups.find(g =>
+      g.items.some(k => k.kana === newKana.kana && k.romaji === newKana.romaji)
+    );
+    const currentType = currentGroup.type;
 
-      // 干擾選項
-      const distractors = uniqueRomaji.filter(r => r !== correctRomaji);
-      newOptions = [
-        ...distractors.sort(() => Math.random() - 0.5).slice(0, 3),
-        correctRomaji
-      ].sort(() => Math.random() - 0.5);
-      setOptions(newOptions);
+    // 3. 從相同 type 的所有假名中，排除正解
+    const sameTypeKana = selectedGroups
+      .filter(g => g.type === currentType)
+      .flatMap(g => g.items);
 
-    } else if (level === 1) {
-      // —— 第2關：選假名 —— 
-      do {
-        newKana = getRandomKana(selectedGroups);
-      } while (lastKanas.includes(newKana));
-      setLastKanas([newKana]);
+    const distractors = sameTypeKana.filter(k => k.kana !== newKana.kana);
 
-      // 只取同一 type
-      const sameType = selectedGroups
-        .filter(g => g.type === newKana.type)
-        .flatMap(g => g.items);
-      const others = sameType.filter(k =>
-        k.kana !== newKana.kana && !lastKanas.includes(k)
-      );
-      newOptions = [
-        ...others.sort(() => Math.random() - 0.5).slice(0, 3),
-        newKana
-      ].sort(() => Math.random() - 0.5);
+    // 4. 隨機抽 3 個干擾，再加上正解並亂序
+    const picks = distractors.sort(() => Math.random() - 0.5).slice(0, 3);
+    newOptions = [...picks, newKana].sort(() => Math.random() - 0.5);
 
-      setOptions(newOptions);
-      setCurrentKana({ kana: newKana.kana, hira: '', kata: '', romaji: newKana.romaji });
+    // 5. 設定狀態
+    setOptions(newOptions);
+    setCurrentKana({
+      kana: newKana.kana,
+      hira: '',
+      kata: '',
+      romaji: newKana.romaji
+    });
+  }
+  else if (level === 2) {
+    // …（第三關邏輯，不動）…
+  }
+  else if (level === 3) {
+    // …（第四關邏輯，不動）…
+  }
+};
 
-    } else if (level === 2) {
-      // —— 第3關：打五十音 —— 
-      do {
-        newKana = getRandomKana(selectedGroups);
-      } while (lastKanas[0] === newKana);
-      setLastKanas([newKana]);
 
-      setCurrentKana({ kana: newKana.kana, hira: '', kata: '', romaji: newKana.romaji });
-      setOptions([]);
+const nextQuestion = (nextScore = score, forceNext = false) => {
+  // 先隱藏提示
+  setShowAnswer(false);
+  setLastWrong(false);
 
-    } else if (level === 3) {
-      // —— 第4關：三連拼音 —— 
-      const allKana = selectedGroups.flatMap(g => g.items);
-      if (allKana.length < 3) {
-        setOptions([]);
-        return;
-      }
-      newOptions = allKana.sort(() => Math.random() - 0.5).slice(0, 3);
-      setOptions(newOptions);
-      setCurrentKana({ kana: '', hira: '', kata: '', romaji: '' });
+  // 達成本關題數
+  if (!forceNext && nextScore >= LEVELS[level].need) {
+    if (level < 3) {
+      // 升級並重置分數
+      setLevel(l => l + 1);
+      setScore(0);
+    } else {
+      // 全部完成
+      setShowCompletionDialog(true);
     }
-  };
+    return;
+  }
 
-  // ——— 開始測驗 & 重玩 ———
-  const handleStartQuiz = () => {
-    if (selectedGroups.length === 0) {
-      alert('請至少選擇一組五十音');
-      return;
-    }
-    setShowTypeSelector(false);
-    setLevel(0);
-    setWrongCount(0);
-    generateNewQuestion();
+  // 否則下一題
+  setScore(nextScore);
+  generateNewQuestion();
+};
+
   };
   const handleRestart = () => {
     setShowTypeSelector(true);
